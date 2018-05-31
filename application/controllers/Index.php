@@ -1,10 +1,25 @@
 <?php
 class IndexController extends Yaf_Controller_Abstract
 {
+    /**
+     * Controller的init方法会被自动首先调用
+     */
+    // public function init()
+    // {
+    //     /**
+    //      * 如果是Ajax请求, 则关闭HTML输出
+    //      */
+    //     if ($this->getRequest()->isXmlHttpRequest()) {
+    //         Yaf_Dispatcher::getInstance()->disableView();
+    //     }
+    // }
+
     public function indexAction()
     {
         //默认Action
-        $this->getView()->assign('content', 'Hello World');
+        exit('Hello World');
+
+        // $this->getView()->assign('content', 'Hello World');
     }
 
     public function websocketAction()
@@ -25,6 +40,13 @@ class IndexController extends Yaf_Controller_Abstract
         });
 
         $server->start();
+    }
 
+    public function getAction()
+    {
+        //默认Action
+        exit('Hello get');
+
+        // $this->getView()->assign('content', 'Hello World');
     }
 }

@@ -15,7 +15,32 @@ class Bootstrap extends Yaf_Bootstrap_Abstract
 
     public function _initDefaultName(Yaf_Dispatcher $dispatcher)
     {
-        $dispatcher->setDefaultModule('Index')->setDefaultController('Index')->setDefaultAction('index');
+        // $dispatcher->setDefaultModule('Rest')->setDefaultController('Index')->setDefaultAction('index');
+        // $modules = Yaf_Application::app()->getModules();
+        // print_r($modules);exit;
+    }
+
+    public function _initRoute(Yaf_Dispatcher $dispatcher)
+    {
+        $router     = Yaf_Dispatcher::getInstance()->getRouter();
+        $regexRoute = new Yaf_Route_Regex(
+            '#/rest/user/([0-9]+)#',
+            [
+                'module'     => 'rest',
+                'controller' => 'users',
+                'action'     => 'get',
+            ],
+            [
+                2 => 'id',
+            ]
+        );
+        $router->addRoute('regex_route', $regexRoute);
+    }
+
+    public function _initPlugin(Yaf_Dispatcher $dispatcher)
+    {
+        $restful = new RestfulPlugin();
+        $dispatcher->registerPlugin($restful);
     }
 
     public function _initLibraries(Yaf_Dispatcher $dispatcher)

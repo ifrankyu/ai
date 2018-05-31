@@ -9,12 +9,12 @@ class WebsocketController extends Yaf_Controller_Abstract
             $redis       = Yaf_Registry::get('redis');
             $onlineCount = $redis->get('onlineCount');
             $redis->set('onlineCount', $onlineCount + 1);
-            echo "server: handshake success with fd{$request->fd}\n";
+            print_r($request);
         });
 
         $server->on('message', function (swoole_websocket_server $server, $frame) {
             $redis = Yaf_Registry::get('redis');
-            $redis->lPush('chatlist' . $frame->fd, json_encode($frame->data));
+            $redis->lPush('chatlist' . $frame->fd, $frame->data);
             echo "receive from {$frame->fd}:{$frame->data},opcode:{$frame->opcode},fin:{$frame->finish}\n";
             $server->push($frame->fd, 'this is serversss');
         });
@@ -27,6 +27,5 @@ class WebsocketController extends Yaf_Controller_Abstract
         });
 
         $server->start();
-
     }
 }
