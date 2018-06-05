@@ -39,9 +39,9 @@ class baseModel
             }
         }
         $start = ($page - 1) * 10;
-        $limit = " limit $start, 10";
+        $limit = " limit $start, 20";
         $sql   = 'select * from ' . $table . ' where 1=1' . $str . $order . $limit;
-        echo $sql, "\n";
+        // echo $sql, "\n";
         try {
             $st = self::getPDOInstance()->prepare($sql);
             foreach ($params as $paramKey => $paramVal) {
@@ -52,7 +52,7 @@ class baseModel
             $errorInfo = $st->errorInfo();
             $this->write_log($errorInfo);
 
-            return $st->fetchAll();
+            return $st->fetchAll(PDO::FETCH_ASSOC);
         } catch (Exception $e) {
             $this->write_log($e->getMessage());
             return false;

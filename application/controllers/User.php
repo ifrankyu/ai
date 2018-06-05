@@ -14,6 +14,16 @@ class UserController extends Yaf_Controller_Abstract
         }
     }
 
+    private function handleReponse($msg, $code = 200, $data = [])
+    {
+        exit(json_encode([
+            'code' => $code,
+            'msg'  => $msg,
+            'data' => $data,
+        ]));
+
+    }
+
     public function indexAction()
     {
         //默认Action
@@ -24,11 +34,15 @@ class UserController extends Yaf_Controller_Abstract
 
     public function loginAction()
     {
-        $raw = $this->getRequest()->getRaw();
-
+        sleep(3);
+        $raw             = $this->getRequest()->getRaw();
         $params          = json_decode($raw, true);
-        $params['phone'] = $params['account'];
+        $params['phone'] = str_replace(' ', '', $params['account']);
         unset($params['account']);
+        if (empty($params['phone']) || empty($params['passwd'])) {
+
+        }
+
         $userModel = new UserModel();
         $result    = $userModel->getOne($userModel->table, $params);
 
@@ -39,11 +53,65 @@ class UserController extends Yaf_Controller_Abstract
         ]));
     }
 
-    public function getAction()
+    private function initUser($params)
     {
-        //默认Action
-        exit('Hello get');
+        $params['logo'] = empty($params['logo']) ? 'https://res.wx.qq.com/a/wx_fed/webwx/res/static/img/2KriyDK.png' : $params['logo'];
 
-        // $this->getView()->assign('content', 'Hello World');
+        return $params;
+    }
+    public function registerAction()
+    {
+        // sleep(3);
+        try {
+            $raw             = $this->getRequest()->getRaw();
+            $params          = json_decode($raw, true);
+            $params['phone'] = str_replace(' ', '', $params['account']);
+            unset($params['account']);
+            unset($params['smscode']);
+            unset($params['type']);
+
+            if (empty($params['phone']) || empty($params['passwd'])) {
+
+            }
+
+            $params    = $this->initUser($params);
+            $userModel = new UserModel();
+            $iResult   = $userModel->insert($userModel->table, $params);
+            if (!$iResult) {
+                throw new Exception('额，服务器开小差了，请稍后再试^_^.', 501);
+            }
+
+            $result = $userModel->getOne($userModel->table, ['phone' => $params['phone']]);
+            if (!$result || !isset($result['id'])) {
+                throw new Exception('额，服务器开小差了，请稍后再试^_^.', 502);
+            }
+            $this->handleReponse('ok', 200, $result);
+        } catch (Exception $e) {
+            $this->handleReponse($e->getMessage(), $e->getCode());
+            return;
+        }
+    }
+
+    public function sendSmsAction()
+    {
+        sleep(2);
+        $raw             = $this->getRequest()->getRaw();
+        $params          = json_decode($raw, true);
+        $params['phone'] = $params['account'];
+        if (empty($params['phone'])) {
+
+        }
+
+        // $userModel = new UserModel();
+        // $iResult   = $userModel->insert($userModel->table, $params);
+        // if (!$iResult) {
+        //     throw new Exception('额，服务器开小差了，请稍后再试^_^.', 501);
+        // }
+
+        // $result = $userModel->getOne($userModel->table, ['phone' => $params['phone']]);
+        // if (!$result || !isset($result['id'])) {
+        //     throw new Exception('额，服务器开小差了，请稍后再试^_^.', 502);
+        // }
+        $this->handleReponse('ok', 200);
     }
 }
